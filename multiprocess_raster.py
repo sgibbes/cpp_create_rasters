@@ -8,12 +8,22 @@ def process_tile(tile_id):
 
     print 'downloading loss and extent for tile id {}'.format(tile_id)
     time.sleep(1)
-        
+    extent_url = r'http://commondatastorage.googleapis.com/earthenginepartners-hansen/GFC2014/Hansen_GFC2014_treecover2000_{}.tif'.format(tile_name)
+    loss_url = r'http://commondatastorage.googleapis.com/earthenginepartners-hansen/GFC2014/Hansen_GFC2014_lossyear_{}.tif'.format(tile_name)
+    extent_local = r'data/{}_extent.tif'.format(tile_name)
+    loss_local = r'data/{}_loss.tif'.format(tile_name)
+
+    subprocess.check_call(['wget', '-O', extent_local, extent_url])
+    subprocess.check_call(['wget', '-O', loss_local, loss_url])
+    
     print 'writing combined tile for {}'.format(tile_id)
-    time.sleep(5)
+    encoded_tile = '{}_losstcd.tif'
+    encode_tiles_cmd = ['./encode_hansen_loss_tcd.exe', extent_local, loss_local, encoded_tile]
+    subprocess.check_call(encode_tiles_cmd)
     
     print 'uploading tile {} to s3'.format(tile_id)
-    time.sleep(1)
+    upload_cmd = ['aws', 's3', 'cp', encoded_tile, 's3://gfw2-data/forest_cover/loss_tcd_tiles/']
+    subprocess.check_call(upload_cmd)
 
 
 if __name__ == '__main__':
