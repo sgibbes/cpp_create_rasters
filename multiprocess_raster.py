@@ -28,5 +28,5 @@ def process_tile(tile_id):
 
 if __name__ == '__main__':
     count = multiprocessing.cpu_count()
-    pool = multiprocessing.Pool(processes=1)
+    pool = multiprocessing.Pool(processes=count)
     pool.map(process_tile, tile_list)
